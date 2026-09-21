@@ -43,6 +43,13 @@ t "chan kubectl apply -n prod"         2 "$(b 'kubectl apply -f k8s/ -n prod')" 
 t "chan npm publish"                   2 "$(b 'npm publish')"                      production-gate.sh
 t "khong nham 'product' la prod"       0 "$(b 'grep -r "release product" src/')"   production-gate.sh
 t "chan rm fix-mode"                   2 "$(b 'rm .sdlc/fix-mode')"                production-gate.sh
+t "chan rm -f duong dan day du"        2 "$(b 'rm -f ./.sdlc/fix-mode')"           production-gate.sh
+t "chan mv fix-mode"                   2 "$(b 'mv .sdlc/fix-mode /tmp/x')"          production-gate.sh
+t "chan ghi de fix-mode"               2 "$(b 'echo x > .sdlc/fix-mode')"           production-gate.sh
+t "chan rm sau &&"                     2 "$(b 'npm test && rm .sdlc/fix-mode')"     production-gate.sh
+t "cho ghi ten file vao .gitignore"    0 "$(b 'echo .sdlc/fix-mode >> .gitignore')" production-gate.sh
+t "cho doc fix-mode"                   0 "$(b 'cat .sdlc/fix-mode')"                production-gate.sh
+t "cho rm file khac trong .sdlc"       0 "$(b 'rm .sdlc/test-patterns.txt')"        production-gate.sh
 t "lenh co tieng Viet van bi chan"     2 "$(b 'git commit -m "sửa lỗi" && git push origin main')" production-gate.sh
 t "JSON escape \\u2713 van bi chan"    2 '{"tool_name":"Bash","tool_input":{"command":"git push origin main # \u2713"}}' production-gate.sh
 t "JSON hong: chan"                    2 'khong phai json'                          production-gate.sh 'khong phai JSON'

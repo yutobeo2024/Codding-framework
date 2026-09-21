@@ -15,7 +15,7 @@ Chế độ `--fix` (sửa bug):
 1. Viết test tái hiện bug. Chạy, xác nhận nó ĐỎ đúng vì lý do mong đợi. Đề nghị người dùng commit test đó.
 2. Sau khi test đỏ đã commit: tạo file `.sdlc/fix-mode` (nội dung: slug + thời điểm). Từ đây hook sẽ chặn mọi chỉnh sửa file test.
 3. Sửa code cho tới khi test xanh. Nếu tin rằng chính test sai: DỪNG, giải thích, để người dùng quyết định.
-4. Xong thì nhắc người dùng tự chạy `rm .sdlc/fix-mode` (agent không được tự gỡ).
+4. Xong thì nhắc người dùng gõ `/sdlc:fix-done` (hoặc tự chạy `rm .sdlc/fix-mode`); agent không được tự gỡ.
 
 Kết thúc (cả hai chế độ):
 - Gọi subagent `verifier` để kiểm tra độc lập trong ngữ cảnh mới.

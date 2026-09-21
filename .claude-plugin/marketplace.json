@@ -1,11 +1,11 @@
 {
   "name": "sdlc-harness",
-  "owner": { "name": "your-team" },
+  "owner": { "name": "yutobeo2024" },
   "plugins": [
     {
       "name": "sdlc",
       "source": "./",
-      "description": "AI-native SDLC harness: intent → spec → plan → build → review → triage, kèm hooks."
+      "description": "AI-native SDLC harness: /sdlc:vibe cho người không biết code + chuỗi intent → spec → plan → build → review cho kỹ sư, trên nền repository-harness, kèm hooks."
     }
   ]
 }

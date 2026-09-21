@@ -1,8 +1,10 @@
 {
   "name": "sdlc",
-  "version": "0.1.0",
-  "description": "AI-native SDLC harness: chuỗi artifact intent → spec → plan → build → review → triage, kèm hook bảo vệ test và cổng production.",
-  "author": { "name": "your-team" },
+  "version": "0.2.0",
+  "description": "AI-native SDLC harness: chế độ vibe cho người không biết code (/sdlc:vibe) và chuỗi intent → spec → plan → build → review cho kỹ sư, trên nền lõi repository-harness, kèm hook bảo vệ test và cổng production.",
+  "author": { "name": "yutobeo2024" },
+  "homepage": "https://github.com/yutobeo2024/Codding-framework",
+  "repository": "https://github.com/yutobeo2024/Codding-framework",
   "license": "MIT",
-  "keywords": ["sdlc", "workflow", "spec", "plan", "tdd", "hooks"]
+  "keywords": ["sdlc", "workflow", "vibe-coding", "harness", "spec", "plan", "tdd", "hooks"]
 }

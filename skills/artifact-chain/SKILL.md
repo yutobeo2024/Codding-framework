@@ -6,10 +6,20 @@ description: Quy ước chuỗi artifact của AI-native SDLC (intent.md → spe
 
 Mỗi giai đoạn KẾT THÚC bằng một file được commit, giai đoạn sau BẮT ĐẦU bằng việc đọc file đó. Chuỗi commit chính là dấu vết kiểm toán: ai yêu cầu gì, agent tạo ra gì, ai duyệt.
 
+## Hai chế độ, một nơi plan cho mỗi việc
+
+- **Kỹ sư** (`/sdlc:intent` → `spec` → `plan` → `build` → `review`): dùng chuỗi `sdlc/<slug>/` dưới đây, cổng `status: accepted` do con người đổi.
+- **Vibe** (`/sdlc:vibe`, người dùng không biết code): KHÔNG tạo `sdlc/<slug>/`. Dùng bố cục của lõi Harness: ý định và tiêu chí "Khi xong bạn sẽ thấy…" ở `docs/product/<slug>.md`, lựa chọn lâu dài ở `docs/decisions/`, việc dài ở `docs/plans/active/<slug>.md` (template `docs/templates/exec-plan.md`), cách chạy app ở `docs/runbook.md`. Cổng người là bảng tiêu chí và các lựa chọn sản phẩm, không phải file kỹ thuật.
+
+Một thay đổi chỉ có MỘT nơi plan. Không chép cùng nội dung sang nơi kia.
+
 ## Bố cục trong repo
 
 ```
-sdlc/
+AGENTS.md           # khối HARNESS (lõi, do harness update quản) + khối SDLC (plugin)
+CLAUDE.md           # @AGENTS.md + lệnh build/test/lint
+docs/               # lõi Harness: WORKFLOW, product/, decisions/, plans/, templates/, runbook.md
+sdlc/               # chế độ kỹ sư
 ├── <slug>/
 │   ├── intent.md   # muốn gì, vì sao, ràng buộc (lời của người nêu ý tưởng)
 │   ├── spec.md     # yêu cầu + thiết kế, có "Điểm đáng lo"
@@ -19,7 +29,7 @@ sdlc/
 .sdlc/              # trạng thái cục bộ: fix-mode, test-patterns.txt, gate-patterns.txt
 ```
 
-Template nằm trong `templates/` cạnh file này. Luôn đọc template rồi điền, không tự chế cấu trúc khác.
+Template của plugin nằm trong `templates/` cạnh file này (kể cả `AGENTS-sdlc-block.md`, `runbook.md`). Luôn đọc template rồi điền, không tự chế cấu trúc khác.
 
 ## Frontmatter bắt buộc
 
@@ -35,7 +45,7 @@ links: []              # mã ticket Jira, URL PR... nếu hệ thống cũ là n
 ---
 ```
 
-## Luật cổng (gate)
+## Luật cổng (gate) — áp dụng cho chuỗi `sdlc/<slug>/`
 
 1. Giai đoạn sau chỉ chạy khi artifact trước có `status: accepted`. Chưa có thì dừng và nói rõ thiếu gì.
 2. Agent KHÔNG BAO GIỜ tự đổi `status` thành `accepted`. Chỉ đổi khi người dùng nói rõ trong phiên này, và ghi tên họ vào `accepted_by`.
@@ -45,7 +55,7 @@ links: []              # mã ticket Jira, URL PR... nếu hệ thống cũ là n
 
 ## Thông điệp commit
 
-`intent(<slug>): …` · `spec(<slug>): …` · `plan(<slug>): …` · `feat|fix(<slug>): …`
+`intent(<slug>): …` · `spec(<slug>): …` · `plan(<slug>): …` · `feat|fix(<slug>): …` · `rule(<tên>): …` · `chore(harness): …`
 Nhờ vậy `git log --grep "(<slug>)"` cho ra toàn bộ lịch sử một thay đổi, và đo được thời gian giữa các giai đoạn bằng dấu thời gian commit.
 
 ## Khi đã có Jira / hệ thống yêu cầu khác

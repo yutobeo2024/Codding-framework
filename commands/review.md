@@ -12,4 +12,4 @@ Yêu cầu kết quả:
 3. Mỗi phát hiện có: file:dòng, vì sao là vấn đề, gợi ý sửa.
 4. Kết thúc bằng bảng đếm theo lượt × mức độ, và một câu: "Con người cần xem kỹ nhất chỗ nào".
 
-Nguyên tắc: bạn KHÔNG phê duyệt PR. Phát hiện chỉ là thông tin cho code owner. Nếu cùng một lỗi xuất hiện lần thứ hai, đề xuất dòng bổ sung vào CLAUDE.md. Nếu diff làm CLAUDE.md lỗi thời, nói rõ.
+Nguyên tắc: bạn KHÔNG phê duyệt PR. Phát hiện chỉ là thông tin cho code owner. Nếu cùng một lỗi xuất hiện lần thứ hai, ghi mục "Ma sát cho người bảo trì" (triệu chứng, ở đâu, mấy lần) và đề xuất chạy `/sdlc:improve`; không tự sửa CLAUDE.md hay AGENTS.md. Nếu diff làm CLAUDE.md, `docs/product/` hoặc `docs/runbook.md` lỗi thời, nói rõ.

@@ -16,8 +16,10 @@ block() { echo "BI CHAN (production-gate): $1" >&2; exit 2; }
 has() { printf '%s' "$cmd" | grep -Eiq "$1"; }
 
 # (d) khong cho go co fix-mode bang shell
-if has '\.sdlc/fix-mode' && has '(^|[;&|[:space:]])(rm|mv|unlink|truncate)([[:space:]]|$)|>'; then
-  block "khong duoc tu tat fix-mode. Nho nguoi dung chay: rm .sdlc/fix-mode"
+# Chi chan khi lenh xoa/di chuyen/ghi de NHAM VAO file co; nhac ten file
+# (vd. echo ".sdlc/fix-mode" >> .gitignore, cat .sdlc/fix-mode) thi cho qua.
+if has '(^|[;&|[:space:]])(rm|mv|unlink|truncate)[[:space:]][^;&|]*\.sdlc/fix-mode'    || has '>[[:space:]]*["'"'"']?[^[:space:];&|"'"'"']*\.sdlc/fix-mode'; then
+  block "khong duoc tu tat fix-mode. Nho nguoi dung go /sdlc:fix-done (hoac tu chay: rm .sdlc/fix-mode)"
 fi
 
 # (c) force push
