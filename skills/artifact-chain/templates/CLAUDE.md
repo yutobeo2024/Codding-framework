@@ -8,6 +8,12 @@ import remains active.
 @AGENTS.md
 <!-- HARNESS:END -->
 
+<!-- AN-TOAN:BEGIN -->
+@an-toan/LUAT-CHUNG.md
+@an-toan/LUAT-LLM.md
+@an-toan/LUAT-AGENT.md
+<!-- AN-TOAN:END -->
+
 # <Tên dự án>
 
 ## Lệnh

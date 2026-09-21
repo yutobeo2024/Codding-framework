@@ -23,4 +23,7 @@ Chung cho cả hai:
 - Xong chỉ khi có bằng chứng quan sát được; báo cáo tách sự thật, giới hạn, phần chưa làm.
 - Hook của plugin chặn: sửa test khi đang fix-mode, push thẳng main, force push,
   deploy production khi chưa có `RELEASE_APPROVAL`. Gỡ fix-mode: người dùng gõ `/sdlc:fix-done`.
+  Chế độ vibe không deploy và không dùng `RELEASE_APPROVAL` (luật K3).
+- An toàn: khối AN-TOAN bên dưới và `an-toan/`. Trước khi có người dùng thật:
+  `/sdlc:audit` → `/sdlc:attack` → `/sdlc:launch`. Nghi bị tấn công: `/sdlc:incident`.
 <!-- SDLC:END -->

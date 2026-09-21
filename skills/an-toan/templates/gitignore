@@ -1,0 +1,26 @@
+# Bí mật — không bao giờ commit
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+secrets/
+credentials/
+.claude/settings.local.json
+
+# Dữ liệu và log cục bộ
+*.log
+logs/
+*.sqlite
+*.db
+data/private/
+backups/
+
+# Phụ thuộc và bản build
+node_modules/
+__pycache__/
+.venv/
+dist/
+build/
+.next/

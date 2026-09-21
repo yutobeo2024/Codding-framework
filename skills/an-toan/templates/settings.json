@@ -1,0 +1,45 @@
+{
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./secrets/**)",
+      "Read(./credentials/**)",
+      "Read(./**/*.pem)",
+      "Read(./**/*.key)",
+      "Bash(curl:*)",
+      "Bash(wget:*)",
+      "Bash(sudo:*)",
+      "Bash(rm -rf:*)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)"
+    ],
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(npm install:*)",
+      "Bash(pnpm add:*)",
+      "Bash(yarn add:*)",
+      "Bash(pip install:*)",
+      "Bash(npx:*)",
+      "Bash(docker:*)",
+      "WebFetch"
+    ],
+    "allow": [
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git branch:*)",
+      "Bash(git switch:*)",
+      "Bash(git checkout:*)",
+      "Bash(git merge:*)",
+      "Bash(scripts/bin/harness:*)",
+      "Bash(scripts/bin/harness.exe:*)",
+      "Bash(./scripts/bin/harness:*)",
+      "Bash(./scripts/bin/harness.exe:*)"
+    ],
+    "disableBypassPermissionsMode": "disable"
+  }
+}

@@ -64,6 +64,24 @@ if ($LASTEXITCODE -ne 0) {
   Write-Host "[OK] Thu muc hien tai da la kho git"
 }
 
+# 5. Loi Harness (repository-harness) vao thu muc hien tai - do NGUOI chay, agent khong duoc curl|bash (luat K4)
+git rev-parse --is-inside-work-tree 2>$null | Out-Null
+if ($LASTEXITCODE -eq 0) {
+  if (Test-Path ".harness-core\manifest.json") {
+    Write-Host "[OK] Loi Harness da co trong thu muc nay (cap nhat bang /sdlc:update)"
+  } else {
+    Write-Host "-> Cai loi Harness (repository-harness) vao $(Get-Location) o che do merge ..."
+    try {
+      $installer = irm "https://raw.githubusercontent.com/hoangnb24/repository-harness/main/scripts/install-harness.ps1?$(Get-Random)"
+      & ([scriptblock]::Create($installer)) -Merge -Yes *> $null
+      if (Test-Path ".harness-core\manifest.json") { Write-Host "[OK] Da cai loi Harness" }
+      else { Write-Host "  Khong cai duoc loi Harness. Chay lai bootstrap sau; /sdlc:init van dung duoc phan con lai." }
+    } catch {
+      Write-Host "  Khong cai duoc loi Harness (mang?). Chay lai bootstrap sau; /sdlc:init van dung duoc phan con lai."
+    }
+  }
+}
+
 Write-Host ""
 Write-Host "Xong. Buoc tiep theo trong thu muc du an:"
 Write-Host "  claude"

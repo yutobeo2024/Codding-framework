@@ -64,6 +64,31 @@ else
   say "✓ Thư mục hiện tại đã là kho git"
 fi
 
+# 5. Lõi Harness (repository-harness) vào thư mục hiện tại — do NGƯỜI chạy, agent không được curl|bash (luật K4)
+if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  if [ -f .harness-core/manifest.json ]; then
+    say "✓ Lõi Harness đã có trong thư mục này (cập nhật bằng /sdlc:update)"
+  else
+    say "→ Cài lõi Harness (repository-harness) vào $(pwd) ở chế độ merge ..."
+    ok=0
+    case "$(uname -s 2>/dev/null)" in
+      MINGW*|MSYS*|CYGWIN*)
+        # Git Bash trên Windows: installer .sh của upstream không hỗ trợ, dùng bản PowerShell
+        if command -v powershell.exe >/dev/null 2>&1; then
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -Command \
+            "& ([scriptblock]::Create((irm 'https://raw.githubusercontent.com/hoangnb24/repository-harness/main/scripts/install-harness.ps1?$(date +%s)'))) -Merge -Yes" >/dev/null 2>&1 && ok=1
+        fi ;;
+      *)
+        curl -fsSL "https://raw.githubusercontent.com/hoangnb24/repository-harness/main/scripts/install-harness.sh?$(date +%s)" | bash -s -- --merge --yes >/dev/null 2>&1 && ok=1 ;;
+    esac
+    if [ "$ok" = 1 ] && [ -f .harness-core/manifest.json ]; then
+      say "✓ Đã cài lõi Harness"
+    else
+      say "  Không cài được lõi Harness (mạng?). Chạy lại bootstrap sau; /sdlc:init vẫn dùng được phần còn lại."
+    fi
+  fi
+fi
+
 say ""
 say "Xong. Bước tiếp theo trong thư mục dự án:"
 say "  claude"

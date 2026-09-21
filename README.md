@@ -32,6 +32,24 @@ Hook vẫn chặn agent push thẳng lên `main`, force push, và deploy product
 Với tính năng nhạy cảm (đăng nhập, thanh toán, dữ liệu cá nhân), agent sẽ khuyên nhờ
 một kỹ sư xem trước khi đưa cho người dùng thật.
 
+### An toàn (OWASP LLM Top 10 + Agentic Top 10, ghép từ "Khung An Toàn AI Agent")
+
+`/sdlc:init` cài bộ luật `an-toan/` (mã K/N/L/A) làm **thẩm quyền** mà agent phải tuân theo, cộng
+ổ khóa thật `.claude/settings.json` (chặn đọc `.env`, chặn `curl`/`sudo`/`rm -rf`/force push, hỏi trước khi cài
+thư viện hay push). Luật áp dụng theo tỉ lệ: việc chạm đăng nhập, dữ liệu, AI, tool, upload, mạng, thư viện mới
+thì phải có bằng chứng trong `SECURITY-REPORT.md`; sửa chữ, đổi giao diện thì không thêm thủ tục.
+
+| Lệnh | Khi nào |
+|------|---------|
+| `/sdlc:audit` | phiên mới rà từng luật, chấm ĐẠT/CHƯA ĐẠT kèm bằng chứng, kết luận được ra mắt chưa |
+| `/sdlc:attack` | agent đóng vai kẻ xấu thử phá bản thử nghiệm, test lưu ở `tests/security/` |
+| `/sdlc:launch` | cổng ra mắt: agent chỉ bằng chứng, bạn tick `CHECKLIST-RA-MAT.md` |
+| `/sdlc:incident` | nghi bị tấn công: dừng, xoay khóa, giữ log, điều tra chỉ đọc |
+
+Đọc `an-toan/HUONG-DAN-CHU-DU-AN.md` (5 phút) sau khi init. Ba chỗ hai bộ từng cấn nhau đã được ghi thành ngoại lệ
+trong `an-toan/LUAT-CHUNG.md`: `/sdlc:undo` dùng `git reset --hard` (chỉ người gõ, có nhánh sao lưu),
+`RELEASE_APPROVAL` chỉ cho chế độ kỹ sư (vibe không deploy), và lõi Harness do người cài qua bootstrap chứ không phải agent.
+
 ```
 /sdlc:intent ──► intent.md ──► /sdlc:spec ──► spec.md ──► /sdlc:plan ──► plan.md
       ▲            (duyệt)                     (duyệt)                    (duyệt)
@@ -54,8 +72,10 @@ curl -fsSL https://raw.githubusercontent.com/yutobeo2024/Codding-framework/main/
 irm https://raw.githubusercontent.com/yutobeo2024/Codding-framework/main/scripts/bootstrap.ps1 | iex
 ```
 
-Script kiểm tra công cụ, cài plugin `sdlc` một lần cho cả máy (scope user), và `git init` nếu cần.
-Chạy lại lần sau chỉ cập nhật, không hỏi gì. Thêm `--init` / `-Init` để mở Claude Code và chạy luôn bước sau.
+Script kiểm tra công cụ, cài plugin `sdlc` một lần cho cả máy (scope user), `git init` nếu cần, và cài
+lõi repository-harness vào thư mục hiện tại (chế độ merge). Việc cài lõi do **bạn** chạy chứ không phải agent,
+đúng luật K4 (agent không được `curl | bash`). Chạy lại lần sau chỉ cập nhật, không hỏi gì.
+Thêm `--init` / `-Init` để mở Claude Code và chạy luôn bước sau.
 
 Rồi trong thư mục dự án:
 ```
@@ -103,13 +123,17 @@ Cú pháp lệnh plugin có thể đổi theo phiên bản: https://code.claude.
 | `/sdlc:improve <ma sát>` | bảo trì hướng dẫn | sửa nhỏ nhất + chạy lại bằng agent mới |
 | `/sdlc:update` | bảo trì lõi | `harness update` merge 3 chiều, giải thích xung đột |
 | `/sdlc:fix-done` | sau khi sửa lỗi | gỡ cờ fix-mode (chỉ người dùng gõ được) |
+| `/sdlc:audit [phạm vi]` | an toàn | subagent `security-auditor` chấm theo luật K/N/L/A, cập nhật `SECURITY-REPORT.md` |
+| `/sdlc:attack [nhóm]` | an toàn | test tấn công mô phỏng ở `tests/security/`, bằng chứng hai chiều |
+| `/sdlc:launch` | an toàn | đi từng mục `CHECKLIST-RA-MAT.md`, người dùng tick |
+| `/sdlc:incident <dấu hiệu>` | an toàn | 4 việc làm ngay + điều tra chỉ đọc |
 
 Thành phần khác:
-- Skills của plugin: `artifact-chain` (quy ước + template), `grill` (phỏng vấn), `tdd-loop` (đỏ → xanh → dọn)
+- Skills của plugin: `artifact-chain` (quy ước + template), `grill` (phỏng vấn), `tdd-loop` (đỏ → xanh → dọn), `an-toan` (luật OWASP + template an toàn)
 - Skills của lõi Harness (trong repo đích, `.agents/skills/`): `encode-invariant`, `onboard-repository`,
   `audit-onboarding-proposal`, `improve-harness`. Các lệnh `/sdlc:rule`, `/sdlc:onboard`, `/sdlc:improve`
   chỉ là lớp mỏng bảo agent làm theo skill đó, nên `harness update` vẫn cập nhật được nội dung.
-- Subagents: `verifier` (kiểm chứng độc lập), `reviewer` (review 3 lượt)
+- Subagents: `verifier` (kiểm chứng độc lập), `reviewer` (review 3 lượt), `security-auditor` (kiểm tra bảo mật độc lập)
 
 ## Hai chế độ, một nơi plan
 

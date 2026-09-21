@@ -1,6 +1,6 @@
 {
   "name": "sdlc",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "AI-native SDLC harness: chế độ vibe cho người không biết code (/sdlc:vibe) và chuỗi intent → spec → plan → build → review cho kỹ sư, trên nền lõi repository-harness, kèm hook bảo vệ test và cổng production.",
   "author": { "name": "yutobeo2024" },
   "homepage": "https://github.com/yutobeo2024/Codding-framework",
