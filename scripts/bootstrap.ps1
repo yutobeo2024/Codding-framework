@@ -1,7 +1,8 @@
-# Keo bo khung sdlc-harness ve may (cai plugin Claude Code mot lan, dung cho moi du an).
-# Dung:  irm https://raw.githubusercontent.com/yutobeo2024/Codding-framework/main/scripts/bootstrap.ps1 | iex
-#        & ([scriptblock]::Create((irm <url>))) -Yes    # khong hoi, tu git init
-#        & ([scriptblock]::Create((irm <url>))) -Init   # sau khi cai, mo Claude Code va chay /sdlc:init --vibe
+# Keo bo khung sdlc-harness ve may (cai plugin Claude Code mot lan) va cai loi Harness vao thu muc du an hien tai.
+# CHAY TRONG CUA SO POWERSHELL, SAU KHI cd VAO THU MUC DU AN. Khong go trong Claude Code (o do dau ! chay bang bash).
+# Dung:  & ([scriptblock]::Create((irm https://raw.githubusercontent.com/yutobeo2024/Codding-framework/main/scripts/bootstrap.ps1))) -Yes
+#        -Yes    khong hoi, tu git init neu chua phai repo
+#        -Init   sau khi cai, mo Claude Code va chay luon /sdlc:init --vibe
 [CmdletBinding()]
 param([switch]$Yes, [switch]$Init)
 # "Continue": loi cua lenh ngoai (stderr) khong duoc bien thanh exception; script tu kiem tra $LASTEXITCODE.
@@ -10,9 +11,20 @@ $ErrorActionPreference = "Continue"
 $MarketName = "sdlc-harness"
 $MarketSrc  = "yutobeo2024/Codding-framework"
 $Plugin     = "sdlc"
+# Trinh cai loi Harness ghim theo tag phat hanh (khong lay tu main).
+$HarnessRef  = if ($env:HARNESS_REF) { $env:HARNESS_REF } else { "harness-v0.1.10" }
+$HarnessBase = "https://raw.githubusercontent.com/hoangnb24/repository-harness/$HarnessRef"
+$Log = ".harness-install.log"
 
 function Fail([string]$m) { Write-Host "LOI: $m" -ForegroundColor Red; exit 1 }
 function Has([string]$cmd) { return [bool](Get-Command $cmd -ErrorAction SilentlyContinue) }
+
+# 0. Dung thu muc chua?
+$here = (Get-Location).Path.TrimEnd('\')
+$userHome = $env:USERPROFILE.TrimEnd('\')
+foreach ($bad in @($userHome, "$userHome\Desktop", "$userHome\Documents", "$userHome\Downloads")) {
+  if ($here -ieq $bad) { Fail "ban dang o $here, khong phai thu muc du an. Tao thu muc cho du an, cd vao do roi chay lai." }
+}
 
 # 1. Kiem tra cong cu
 if (-not (Has "claude")) { Fail "chua co Claude Code. Cai theo https://code.claude.com/docs/en/setup roi chay lai." }
@@ -71,14 +83,33 @@ if ($LASTEXITCODE -eq 0) {
   if (Test-Path ".harness-core\manifest.json") {
     Write-Host "[OK] Loi Harness da co trong thu muc nay (cap nhat bang /sdlc:update)"
   } else {
-    Write-Host "-> Cai loi Harness (repository-harness) vao $(Get-Location) o che do merge ..."
+    Write-Host "-> Cai loi Harness ($HarnessRef) vao $(Get-Location) o che do merge (log: $Log) ..."
+    $direct = "`$env:HARNESS_SOURCE_BASE_URL='$HarnessBase'; & ([scriptblock]::Create((irm $HarnessBase/scripts/install-harness.ps1))) -Merge -Yes"
+    $ok = $false
     try {
-      $installer = irm "https://raw.githubusercontent.com/hoangnb24/repository-harness/main/scripts/install-harness.ps1?$(Get-Random)"
-      & ([scriptblock]::Create($installer)) -Merge -Yes *> $null
-      if (Test-Path ".harness-core\manifest.json") { Write-Host "[OK] Da cai loi Harness" }
-      else { Write-Host "  Khong cai duoc loi Harness. Chay lai bootstrap sau; /sdlc:init van dung duoc phan con lai." }
+      $env:HARNESS_SOURCE_BASE_URL = $HarnessBase
+      $installer = irm "$HarnessBase/scripts/install-harness.ps1"
+      # Khong nuot thong bao: ghi toan bo output vao log de doc duoc khi hong
+      & ([scriptblock]::Create($installer)) -Merge -Yes *>&1 | Out-File -FilePath $Log -Encoding utf8
+      if (Test-Path ".harness-core\manifest.json") { $ok = $true }
     } catch {
-      Write-Host "  Khong cai duoc loi Harness (mang?). Chay lai bootstrap sau; /sdlc:init van dung duoc phan con lai."
+      Add-Content -Path $Log -Value ("EXCEPTION: " + $_.Exception.Message)
+    }
+    if ($ok) {
+      Write-Host "[OK] Da cai loi Harness"
+      if (-not (Select-String -Path .gitignore -Pattern "harness-install.log" -Quiet -ErrorAction SilentlyContinue)) {
+        [IO.File]::AppendAllText((Join-Path (Get-Location) ".gitignore"), "`n# log cai loi Harness (bootstrap)`n.harness-install.log`n")
+      }
+      # Luu moc ngay de /sdlc:init khong phai commit code ngoai (bo phan loai cua Claude Code co the chan)
+      git add -- .harness-core .agents AGENTS.md docs .gitignore 2>$null
+      git commit -q -m "chore(harness): cai loi Harness $HarnessRef" 2>&1 | Out-File -FilePath $Log -Append -Encoding utf8
+      if ($LASTEXITCODE -eq 0) { Write-Host "[OK] Da luu moc: chore(harness): cai loi Harness" }
+      else { Write-Host "  Chua luu moc duoc (git chua co user.name/email?). Xem $Log. Tu chay: git add -A; git commit -m `"chore(harness): cai loi Harness`"" }
+    } else {
+      Write-Host "[X] Khong cai duoc loi Harness. Dong cuoi trong ${Log}:" -ForegroundColor Yellow
+      if (Test-Path $Log) { Get-Content $Log -Tail 3 | ForEach-Object { "    $_" } }
+      Write-Host "  Cai truc tiep de thay du thong bao (dan vao PowerShell, dung trong thu muc nay):"
+      Write-Host "    $direct"
     }
   }
 }
@@ -86,7 +117,7 @@ if ($LASTEXITCODE -eq 0) {
 Write-Host ""
 Write-Host "Xong. Buoc tiep theo trong thu muc du an:"
 Write-Host "  claude"
-Write-Host "  /sdlc:init --vibe        # cai loi Harness + sdlc vao du an (mot lan)"
+Write-Host "  /sdlc:init --vibe        # cai lop an toan + sdlc vao du an (mot lan; loi Harness da cai o tren)"
 Write-Host "  /sdlc:vibe <ban muon app lam gi>"
 Write-Host "Hoan tac: /sdlc:undo   |   Quy tac cung: /sdlc:rule   |   Cap nhat loi: /sdlc:update"
 

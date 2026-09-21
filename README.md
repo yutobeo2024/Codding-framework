@@ -16,20 +16,33 @@ Cần **Claude Code**, **git** (Windows: Git for Windows, kèm Git Bash) và **P
 Script ở bước 1 tự kiểm tra và báo thiếu gì.
 
 ### Bước 1 — Kéo khung về (1 lệnh, trong thư mục dự án)
-Tạo thư mục trống, mở terminal trong đó:
+Ba điều quan trọng trước khi chạy:
+1. Chạy trong **cửa sổ PowerShell / Terminal riêng**, KHÔNG gõ trong Claude Code (ở đó dấu `!` chạy bằng bash nên lệnh PowerShell sẽ lỗi).
+2. **`cd` vào thư mục dự án trước** (tạo thư mục trống nếu chưa có). Script tự dừng nếu bạn đang ở thư mục người dùng, Desktop, Documents hay Downloads.
+3. Không có dấu `!` ở đầu lệnh.
 
 ```powershell
 # Windows PowerShell
+cd D:\du-an\ten-du-an
 & ([scriptblock]::Create((irm https://raw.githubusercontent.com/yutobeo2024/Codding-framework/main/scripts/bootstrap.ps1))) -Yes
 ```
 ```bash
 # macOS / Linux / Git Bash
+cd ~/du-an/ten-du-an
 curl -fsSL https://raw.githubusercontent.com/yutobeo2024/Codding-framework/main/scripts/bootstrap.sh | bash -s -- --yes
 ```
+Nếu buộc phải chạy từ trong Claude Code (đang ở đúng thư mục dự án):
+```
+! powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((irm https://raw.githubusercontent.com/yutobeo2024/Codding-framework/main/scripts/bootstrap.ps1))) -Yes"
+```
 
-Script làm 4 việc: cài plugin `sdlc` cho cả máy (lần sau chỉ cập nhật), `git init`, và **cài lõi
-repository-harness vào thư mục này** (do bạn chạy, đúng luật K4 nên agent không bao giờ phải `curl | bash`).
+Script làm 5 việc: cài plugin `sdlc` cho cả máy (lần sau chỉ cập nhật), `git init`, **cài lõi
+repository-harness vào thư mục này** (ghim theo tag phát hành; do bạn chạy, đúng luật K4 nên agent không bao giờ
+phải `curl | bash`), và **lưu mốc git** cho lõi. Toàn bộ output của trình cài lõi được ghi vào `.harness-install.log`;
+khi hỏng, script in 3 dòng cuối của log và lệnh cài trực tiếp để bạn thấy đủ thông báo.
 Thêm `--init` / `-Init` để mở Claude Code và chạy luôn bước 2.
+Lõi phải được cài và lưu mốc **trước** bước 2: sau khi `/sdlc:init` bật ổ khóa quyền, bộ phân loại lệnh của Claude Code
+có thể chặn agent commit "code ngoài" (`.harness-core/`, `harness.exe`).
 
 ### Bước 2 — Khởi tạo dự án (một lần cho mỗi dự án)
 ```
@@ -37,7 +50,7 @@ claude
 /sdlc:init --vibe
 ```
 Lần đầu mở Claude trong thư mục, bấm **chấp nhận trust**. Agent sẽ:
-- hỏi tối đa 3 câu có/không để xếp **cấp dự án** (app có gọi AI? AI có tra cứu tài liệu riêng? AI có tự làm việc như gửi mail, sửa dữ liệu?);
+- hỏi bạn có sẵn **PRD / mô tả sản phẩm** không (dán vào là agent tự xếp cấp và lưu vào `docs/product/`); không có thì hỏi tối đa 3 câu có/không để xếp **cấp dự án** (app có gọi AI? AI có tra cứu tài liệu riêng? AI có tự làm việc như gửi mail, sửa dữ liệu?) và một câu về **dữ liệu cá nhân / sức khỏe**;
 - tạo `AGENTS.md`, `CLAUDE.md`, `an-toan/`, `SECURITY-REPORT.md`, `.env.example`, `docs/`, bộ khung test tối thiểu;
 - commit mốc đầu, rồi **cuối cùng** ghi ổ khóa `.claude/settings.json`.
 
@@ -204,6 +217,12 @@ Kiểm thử hook: `bash tests/run-hook-tests.sh`
 > Hook là lưới an toàn ở máy lập trình viên, KHÔNG thay cho kiểm soát phía máy chủ.
 > So khớp bằng regex thì luôn có cách lách (script bọc ngoài, alias). Vẫn phải bật branch
 > protection và giữ credentials production ngoài tầm với của agent.
+
+## Lỗi đã biết (ở phần ngoài plugin)
+
+- **Trình cài lõi repository-harness (PowerShell)**: dòng cuối luôn in `Created: 0, updated: 0, skipped: 0` dù đã tạo hàng chục file (bộ đếm không tính file do `harness.exe` tạo). Bỏ qua dòng này; nhìn `harness status`.
+- **`-RefreshAgentShim` của trình cài đó** đọc/ghi `AGENTS.md` không chỉ định encoding → trên PowerShell 5.1 làm hỏng tiếng Việt. Bootstrap và `/sdlc:init` không dùng cờ này; khối HARNESS thiếu thì `/sdlc:init` tự chèn từ `.harness-core/base/AGENTS.md`.
+- **Bộ phân loại lệnh của Claude Code** (không phải `settings.json`) có thể chặn `harness.exe doctor` ("Code from External") hoặc commit `.harness-core/` ("Untrusted Code Integration") sau khi ổ khóa quyền bật. Vì vậy bootstrap lưu mốc lõi trước; nếu vẫn bị chặn, bạn gõ `! git add -A && git commit -m "chore(harness): cài lõi Harness"` trong Claude Code.
 
 ## Phần plugin KHÔNG làm được (cấu hình ở hạ tầng)
 

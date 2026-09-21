@@ -1,6 +1,7 @@
 # SECURITY-REPORT — <tên dự án>
 
-- **Cấp dự án:** Cấp 1 / 2 / 3 — lý do:
+- **Cấp dự án:** Cấp 0 (không gọi AI) / 1 (gọi AI) / 2 (RAG, tra cứu tài liệu) / 3 (agent có tool, bộ nhớ) — lý do:
+- **Dữ liệu nhạy cảm (cá nhân, sức khỏe, thanh toán):** CÓ / KHÔNG — nếu CÓ, luật N5, N9, N10 bắt buộc dù Cấp 0:
 - **Ngày cập nhật:**            **Agent viết code:**            **Agent kiểm tra độc lập:**
 - **Kết luận hiện tại:** CHƯA ĐƯỢC RA MẮT / ĐƯỢC RA MẮT
 
