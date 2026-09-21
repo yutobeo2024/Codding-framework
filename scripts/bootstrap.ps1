@@ -1,4 +1,4 @@
-﻿# Kéo bộ khung sdlc-harness về máy (cài plugin Claude Code một lần, dùng cho mọi dự án).
+# Kéo bộ khung sdlc-harness về máy (cài plugin Claude Code một lần, dùng cho mọi dự án).
 # Dùng:  irm https://raw.githubusercontent.com/yutobeo2024/Codding-framework/main/scripts/bootstrap.ps1 | iex
 #        & ([scriptblock]::Create((irm <url>))) -Yes    # không hỏi, tự git init
 #        & ([scriptblock]::Create((irm <url>))) -Init   # sau khi cài, mở Claude Code và chạy /sdlc:init --vibe

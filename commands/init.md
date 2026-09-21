@@ -12,6 +12,8 @@ Template của plugin nằm ở skill `artifact-chain` (thư mục `templates/` 
 
 Chế độ chính của repo: `--vibe` (người dùng không biết code, mặc định nếu họ nói vậy) hoặc `--engineer`. Không có tham số thì hỏi một câu. Ở chế độ vibe: nói bằng lời thường, tự làm hết, chỉ báo mỗi bước một dòng.
 
+Khi tạo hoặc nối file có tiếng Việt (`AGENTS.md`, `CLAUDE.md`, `REVIEW.md`…): dùng công cụ Write/Edit, KHÔNG dùng PowerShell `Add-Content`/`Set-Content`/`>>` (PowerShell 5.1 ghi mã ANSI, tiếng Việt sẽ hỏng).
+
 Làm lần lượt:
 
 1. **Git.** Chưa phải repo git thì `git init` và commit mốc đầu (`chore: khởi tạo`). Ghi lại `git status` trước khi làm để không đụng thay đổi có sẵn.
