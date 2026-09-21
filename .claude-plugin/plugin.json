@@ -1,0 +1,8 @@
+{
+  "name": "sdlc",
+  "version": "0.1.0",
+  "description": "AI-native SDLC harness: chuỗi artifact intent → spec → plan → build → review → triage, kèm hook bảo vệ test và cổng production.",
+  "author": { "name": "your-team" },
+  "license": "MIT",
+  "keywords": ["sdlc", "workflow", "spec", "plan", "tdd", "hooks"]
+}

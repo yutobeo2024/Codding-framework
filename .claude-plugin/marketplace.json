@@ -1,0 +1,11 @@
+{
+  "name": "sdlc-harness",
+  "owner": { "name": "your-team" },
+  "plugins": [
+    {
+      "name": "sdlc",
+      "source": "./",
+      "description": "AI-native SDLC harness: intent → spec → plan → build → review → triage, kèm hooks."
+    }
+  ]
+}

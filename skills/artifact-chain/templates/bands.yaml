@@ -1,0 +1,11 @@
+# MẪU cho khâu Maintain. Plugin không chạy file này.
+# Việc phát hiện phải do script TẤT ĐỊNH của bạn làm (cron / CI schedule),
+# không dùng model. Chỉ khi vượt ngưỡng mới gọi Claude, ví dụ:
+#   claude -p "/sdlc:triage $(cat alert.json)" --allowedTools "Read,Grep,Bash(git log *)"
+metric: ci_test_failure_rate
+baseline: rolling_30d
+rules: western_electric
+tiers:
+  1sigma: { action: log }
+  2sigma: { action: diagnose, tools: "Read,Grep,Bash(git log *)" }      # chỉ đọc
+  3sigma: { action: propose,  routes: [pull_request, "runbook:rollback-deploy"] }
