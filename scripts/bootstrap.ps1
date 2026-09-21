@@ -42,7 +42,8 @@ if ($markets -match [regex]::Escape($MarketName)) {
 # 3. Plugin (scope user)
 $plugins = (claude plugin list 2>$null) -join "`n"
 if ($plugins -match [regex]::Escape("${Plugin}@${MarketName}")) {
-  Write-Host "[OK] Plugin ${Plugin}@${MarketName} da cai"
+  Write-Host "[OK] Plugin ${Plugin}@${MarketName} da cai, cap nhat len ban moi nhat..."
+  claude plugin update "${Plugin}@${MarketName}" *> $null
 } else {
   Write-Host "-> Cai plugin ${Plugin}@${MarketName} ..."
   claude plugin install "${Plugin}@${MarketName}" -s user *> $null

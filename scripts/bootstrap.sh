@@ -44,8 +44,9 @@ else
 fi
 
 # 3. Plugin (scope user: dùng được ở mọi thư mục)
-if claude plugin list 2>/dev/null | grep -q "^$PLUGIN@$MARKET_NAME\|$PLUGIN@$MARKET_NAME"; then
-  say "✓ Plugin $PLUGIN@$MARKET_NAME đã cài"
+if claude plugin list 2>/dev/null | grep -q "$PLUGIN@$MARKET_NAME"; then
+  say "✓ Plugin $PLUGIN@$MARKET_NAME đã cài, cập nhật lên bản mới nhất..."
+  claude plugin update "$PLUGIN@$MARKET_NAME" >/dev/null 2>&1 || say "  (không cập nhật được, dùng bản đang có)"
 else
   say "→ Cài plugin $PLUGIN@$MARKET_NAME ..."
   claude plugin install "$PLUGIN@$MARKET_NAME" -s user >/dev/null
