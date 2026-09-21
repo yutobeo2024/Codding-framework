@@ -6,31 +6,92 @@ Nền bên dưới là lõi [repository-harness](https://github.com/hoangnb24/re
 (`AGENTS.md`, `docs/`, skill onboarding và encode-invariant, bộ cập nhật merge 3 chiều).
 `/sdlc:init` cài cả hai lớp.
 
-## Dành cho người không biết code
+## Hướng dẫn 5 phút — bắt đầu một dự án mới từ đầu
 
+Dành cho người không biết code. Bạn chỉ quyết định **sản phẩm** (muốn gì, cho ai, đúng/sai trông ra sao);
+agent lo code, test, git và bằng chứng.
+
+### Chuẩn bị (một lần trên máy)
+Cần **Claude Code**, **git** (Windows: Git for Windows, kèm Git Bash) và **Python hoặc jq** (hook cần để đọc JSON).
+Script ở bước 1 tự kiểm tra và báo thiếu gì.
+
+### Bước 1 — Kéo khung về (1 lệnh, trong thư mục dự án)
+Tạo thư mục trống, mở terminal trong đó:
+
+```powershell
+# Windows PowerShell
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/yutobeo2024/Codding-framework/main/scripts/bootstrap.ps1))) -Yes
 ```
-/sdlc:vibe tôi muốn danh sách việc cần làm có nút xoá
+```bash
+# macOS / Linux / Git Bash
+curl -fsSL https://raw.githubusercontent.com/yutobeo2024/Codding-framework/main/scripts/bootstrap.sh | bash -s -- --yes
 ```
 
-Bạn chỉ trả lời câu hỏi về sản phẩm (muốn gì, cho ai, đúng/sai trông ra sao) và duyệt
-bảng **"Khi xong bạn sẽ thấy…"**. Agent lo phần còn lại: code, test, git (nhánh riêng,
-lưu mốc sau mỗi bước chạy đúng), mở app lên và chụp màn hình để bạn tự xác nhận.
+Script làm 4 việc: cài plugin `sdlc` cho cả máy (lần sau chỉ cập nhật), `git init`, và **cài lõi
+repository-harness vào thư mục này** (do bạn chạy, đúng luật K4 nên agent không bao giờ phải `curl | bash`).
+Thêm `--init` / `-Init` để mở Claude Code và chạy luôn bước 2.
 
-| Lệnh | Khi nào |
+### Bước 2 — Khởi tạo dự án (một lần cho mỗi dự án)
+```
+claude
+/sdlc:init --vibe
+```
+Lần đầu mở Claude trong thư mục, bấm **chấp nhận trust**. Agent sẽ:
+- hỏi tối đa 3 câu có/không để xếp **cấp dự án** (app có gọi AI? AI có tra cứu tài liệu riêng? AI có tự làm việc như gửi mail, sửa dữ liệu?);
+- tạo `AGENTS.md`, `CLAUDE.md`, `an-toan/`, `SECURITY-REPORT.md`, `.env.example`, `docs/`, bộ khung test tối thiểu;
+- commit mốc đầu, rồi **cuối cùng** ghi ổ khóa `.claude/settings.json`.
+
+Từ đây agent bị chặn đọc `.env`, chạy `curl`/`sudo`/`rm -rf`/force push, phải hỏi bạn trước khi cài thư viện hay
+push, và không dùng được chế độ bỏ qua quyền. Sửa file thì không hỏi. **Đó là chủ ý.**
+
+Kiểm tra nhanh (phép thử 30 giây): mở phiên mới, hỏi *"Bạn đang tuân thủ bộ luật nào? K3 nói gì?"*
+→ trả lời "không chạm production" là luật đã nạp.
+
+### Bước 3 — Làm việc: chỉ một lệnh
+```
+/sdlc:vibe tôi muốn một trang ghi chi tiêu hằng ngày, có tổng theo tháng
+```
+Mỗi tính năng là một lần `/sdlc:vibe`. Agent sẽ:
+1. **Hỏi bạn từng câu một** về sản phẩm (ai dùng, "tốt hơn" trông ra sao, cái gì không làm). Không hỏi câu kỹ thuật.
+2. Đưa bảng **"Khi xong bạn sẽ thấy…"** (3–7 tình huống bằng lời bạn) → bạn sửa/đồng ý. Đây là **cổng duyệt duy nhất** của bạn.
+3. Nếu còn lựa chọn làm ra hành vi khác nhau (ví dụ: xóa là mất luôn hay vào thùng rác?) → dừng, đưa 2–3 lựa chọn kèm đề xuất.
+   Lựa chọn lâu dài được ghi vào `docs/decisions/` nên **lần sau không hỏi lại**.
+4. Tự làm trên nhánh `vibe/<tên>`, viết test trước, **lưu mốc** sau mỗi bước chạy đúng.
+5. Kết thúc bằng báo cáo: tình huống nào ✅/❌ kèm ảnh, **"Bạn tự thử thế này"**, phần chưa làm. Không có bằng chứng thì không được nói "xong".
+6. Hỏi "Gộp vào bản chính chưa?"
+
+| Lệnh phụ | Khi nào |
 |------|---------|
-| `/sdlc:vibe <mong muốn>` | mọi việc: tính năng mới, sửa lỗi, hỏi đáp |
-| `/sdlc:undo` | muốn quay về mốc trước (không mất gì, có nhánh sao lưu) |
-| `/sdlc:rule "<không bao giờ được…>"` | biến một quy tắc thành kiểm tra tự động |
-| `/sdlc:fix-done` | tắt chế độ bảo vệ test sau khi sửa lỗi |
+| `/sdlc:undo` | muốn quay về mốc trước (không mất gì, luôn có nhánh sao lưu) |
+| `/sdlc:rule "không bao giờ được xóa việc chưa làm"` | biến một câu "cấm" thành kiểm tra tự động |
+| `/sdlc:fix-done` | sau khi sửa lỗi xong, tắt chế độ bảo vệ test |
+| `/sdlc:vibe sửa lỗi: bấm nút X thì …` | sửa lỗi (agent viết test tái hiện trước) |
 
-Điều agent **sẽ dừng lại hỏi**: khi còn nhiều cách làm cho ra hành vi khác nhau mà bạn
-nhìn thấy được (agent đưa 2–3 lựa chọn kèm đề xuất). Điều agent **không hỏi lại**: những gì
-bạn đã chọn ở các lần trước, vì chúng được ghi ở `docs/product/` và `docs/decisions/`.
-Việc dài được ghi ở `docs/plans/active/` để phiên sau làm tiếp nếu giữa chừng bị ngắt.
+Việc dài, bị ngắt giữa chừng: mở phiên mới, gõ lại `/sdlc:vibe <cùng chủ đề>` — agent đọc `docs/plans/active/` và làm tiếp.
+Với tính năng nhạy cảm (đăng nhập, thanh toán, dữ liệu cá nhân), agent sẽ khuyên nhờ một kỹ sư xem trước khi đưa cho người dùng thật.
 
-Hook vẫn chặn agent push thẳng lên `main`, force push, và deploy production.
-Với tính năng nhạy cảm (đăng nhập, thanh toán, dữ liệu cá nhân), agent sẽ khuyên nhờ
-một kỹ sư xem trước khi đưa cho người dùng thật.
+### Bước 4 — Trước khi cho người thật dùng
+```
+/sdlc:audit      # phiên mới rà từng luật, chấm ĐẠT/CHƯA ĐẠT kèm bằng chứng
+/sdlc:attack     # agent đóng vai kẻ xấu thử phá bản thử nghiệm
+/sdlc:launch     # đi từng mục checklist; agent chỉ bằng chứng, BẠN tick
+```
+Chưa qua `/sdlc:launch` → chưa có người dùng thật, chưa có dữ liệu thật. Deploy do **bạn tự bấm**, agent không làm (K3).
+
+### Việc chỉ bạn làm được (agent không làm thay)
+- Tạo khóa API riêng cho từng dự án, **bật trần chi tiêu cứng trước khi tạo khóa**.
+- Không dán khóa/mật khẩu/dữ liệu khách thật vào khung chat. Điền `.env` bằng tay (agent bị chặn đọc file này).
+- Bật 2FA cho GitHub/cloud/nhà cung cấp AI. Có sao lưu và đã thử khôi phục một lần.
+- Đọc `an-toan/HUONG-DAN-CHU-DU-AN.md` (5 phút).
+
+### Bảo trì
+- `/sdlc:update`: cập nhật lõi Harness (merge 3 chiều, không mất phần bạn đã chỉnh).
+- Chạy lại lệnh bootstrap bất kỳ lúc nào: cập nhật plugin lên bản mới nhất.
+- Nghi bị tấn công: `/sdlc:incident`. Lỗi thường: `/sdlc:triage`.
+- Agent cứ lặp lại cùng một kiểu sai: `/sdlc:improve <mô tả>` (dành cho người bảo trì).
+
+Kỹ sư hoặc làm việc theo đội: dùng `/sdlc:init --engineer` và chuỗi `/sdlc:intent` → `spec` → `plan` → `build` → `review`
+(xem sơ đồ bên dưới). Hai chế độ dùng chung repo được, chỉ khác nơi lưu plan.
 
 ### An toàn (OWASP LLM Top 10 + Agentic Top 10, ghép từ "Khung An Toàn AI Agent")
 
@@ -59,32 +120,9 @@ trong `an-toan/LUAT-CHUNG.md`: `/sdlc:undo` dùng `git reset --hard` (chỉ ngư
 
 Mỗi mũi tên "duyệt" là một cổng: con người đổi `status: accepted`, agent không tự duyệt.
 
-## Bắt đầu dự án mới (kéo bộ khung về bằng một lệnh)
+## Cài đặt thủ công (không dùng bootstrap)
 
-Mở terminal trong thư mục dự án (trống cũng được), chạy **một** dòng:
-
-```bash
-# macOS / Linux / Git Bash
-curl -fsSL https://raw.githubusercontent.com/yutobeo2024/Codding-framework/main/scripts/bootstrap.sh | bash
-```
-```powershell
-# Windows PowerShell
-irm https://raw.githubusercontent.com/yutobeo2024/Codding-framework/main/scripts/bootstrap.ps1 | iex
-```
-
-Script kiểm tra công cụ, cài plugin `sdlc` một lần cho cả máy (scope user), `git init` nếu cần, và cài
-lõi repository-harness vào thư mục hiện tại (chế độ merge). Việc cài lõi do **bạn** chạy chứ không phải agent,
-đúng luật K4 (agent không được `curl | bash`). Chạy lại lần sau chỉ cập nhật, không hỏi gì.
-Thêm `--init` / `-Init` để mở Claude Code và chạy luôn bước sau.
-
-Rồi trong thư mục dự án:
-```
-claude
-/sdlc:init --vibe          # cài lõi Harness + sdlc vào dự án này (một lần)
-/sdlc:vibe tôi muốn ...    # bắt đầu làm
-```
-
-## Cài đặt thủ công
+Dòng bootstrap ở "Hướng dẫn 5 phút" là cách khuyến nghị. Nếu muốn tự làm:
 
 Thử cục bộ (không cần đẩy lên git):
 ```bash
